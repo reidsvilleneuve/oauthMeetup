@@ -1,0 +1,201 @@
+#+theme=briebug
+
+Simple Ionic/ngCordova Oauth App
+21 Oct 2015
+
+Reid Villeneuve
+Software Engineer, BrieBug Solutions
+
+http://www.briebug.com
+reid.villeneuve@briebug.com
+
+* Creating The Project
+
+We're going to build a simple Oauth app from a blank ionic template.
+
+From your Terminal or Command Line:
+
+    ionic start ionicOauth blank
+
+    cd ionicOauth
+
+    ionic platform add iOS (automatic on mac)
+
+    ionic platform add android
+
+* Starting Out
+
+Add js/controllers.js:
+
+    angular.module('starter')
+        .controller('login', function() {
+            var vm = this;
+            console.log('Hello!');
+      });
+
+Include it in index.html:
+
+    <script src="js/controllers.js"></script>
+
+* Quick Check-In
+
+For iOS:
+
+    ionic emulate iOS -l -c
+
+Android (Make sure you have USB debugging on):
+
+    ionic run android -l -c
+
+Browser:
+
+    ionic serve
+
+(-l: _live_reload_ -c: _console_log_)
+
+* iOS and Live Reload
+
+Oh no! Live Reload isn't working in iOS!
+
+As of this presentation, the Ionic client hasn't yet updated to accommodate for recent iOS changes.
+
+See:
+[[https://developer.apple.com/library/prerelease/ios/technotes/App-Transport-Security-Technote/]]
+
+* Fixing iOS Live Reload
+
+Download update_platform_config.js to the hooks/after_prepare directory:
+
+[[https://raw.githubusercontent.com/diegonetto/generator-ionic/master/templates/hooks/after_prepare/update_platform_config.js]]
+
+Grant it execute permission:
+
+    chmod +x hooks/after_prepare/update_platform_config.js
+
+Install Node dependencies:
+
+    npm install -S lodash elementtree plist
+
+We can now add to *-Info.plist/AndroidManifest.xml without modifying the Platforms directory content!
+
+* Fixing iOS Live Reload - Continued
+
+Place the following near the end of config.xml, right above the ending </widget>:
+
+    <platform name="ios">
+        <config-file platform="ios" target="*-Info.plist" parent="NSAppTransportSecurity">
+            <dict>
+                <key>NSAllowsArbitraryLoads</key>
+                <true/>
+          </dict>
+        </config-file>
+    </platform>
+
+*Important!*
+Do not keep this key active when deploying to the App Store. Apps that include NSAllowsArbitraryLoads will get rejected unless they have a very good reason to have it.
+
+* Setting Up Our Template
+Add templates/login.html:
+
+    <ion-view view-title="Log in">
+      <button class="button button-full button-positive"
+              ng-click="vm.facebookLogin()">
+         Log In Using Facebook
+       </button>
+    </ion-view>
+
+Append to the end of app.js:
+
+    .config(function($stateProvider, $urlRouterProvider) {
+        $stateProvider
+            .state('login', {
+                url: '/',
+                templateUrl: 'templates/login.html',
+                controller: 'login as vm'
+            });
+
+        $urlRouterProvider.otherwise('/');
+    });
+
+* Install Dependencies
+
+ngCordova, ngCordovaOauth, and cordova-plugin-inappbrowser (_Required_by_ngCordovaOauth_):
+
+    bower install -S ngCordova ng-cordova-oauth
+    ionic plugin add cordova-plugin-inappbrowser
+
+Include references to ngCordova/ng-cordova-oauth in index.html:
+
+    <script src="lib/ngCordova/dist/ng-cordova.js"></script>
+    <script src="lib/ng-cordova-oauth/dist/ng-cordova-oauth.js"></script>
+
+Include ngCordova in the app module in app.js:
+
+    angular.module('starter', ['ionic', 'ngCordova'])
+
+Include $cordovaOauth in the login controller in controllers.js:
+
+    .controller('login', function($http, $cordovaOauth) {
+
+* Finishing Our Template
+login.html, under our button:
+
+      <div ng-show="vm.profile" class="list card">
+        <div class="item item-image">
+          <img ng-src="{{vm.profile.picture}}">
+        </div>
+
+        <div class="item">
+          {{vm.profile.name}}
+        </div>
+        <div class="item">
+          {{vm.profile.gender}}
+        </div>
+      </div>
+
+* Controller: Button Behaviour
+controller.js, under our console log:
+
+    vm.facebookLogin = facebookLogin;
+
+    function facebookLogin() {
+        $cordovaOauth.facebook('753481421462159', ['public_profile', 'email', 'user_photos'])
+            .then(function(result) {
+                console.log('cOAuth Success: ' + JSON.stringify(result));
+                getProfile(result.access_token)
+            })
+            .catch(function(error) {
+                console.log('cOAuth Error: ' + JSON.stringify(error));
+            });
+    }
+
+* Controller: Getting User The Profile
+controller.js, under facebookLogin():
+
+    function getProfile(token) {
+        var params = {
+            access_token: token,
+            fields: "id,name,gender,picture.height(961)",
+            format: "json"
+        };
+
+        $http.get("https://graph.facebook.com/v2.2/me", {params: params})
+            .then(function(result) {
+                vm.profile = result.data;
+                vm.profile.picture = vm.profile.picture.data.url;
+            });
+    }
+
+* Deploy
+
+Initialize your app with Ionic.io
+
+    ionic io init
+
+Upload to the Ionic Server
+
+    ionic upload
+
+View Your App in the Ionic View App
+
+barcodeReader App ID: 4ee38772
