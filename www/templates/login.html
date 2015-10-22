@@ -3,4 +3,17 @@
           ng-click="vm.facebookLogin()">
     Log In Using Facebook
   </button>
+
+  <div ng-show="vm.profile" class="list card">
+    <div class="item item-image">
+      <img ng-src="{{vm.profile.picture}}">
+    </div>
+
+    <div class="item">
+      {{vm.profile.name}}
+    </div>
+    <div class="item">
+      {{vm.profile.gender}}
+    </div>
+  </div>
 </ion-view>
