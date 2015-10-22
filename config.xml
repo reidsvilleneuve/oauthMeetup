@@ -17,7 +17,6 @@
   <feature name="StatusBar">
     <param name="ios-package" value="CDVStatusBar" onload="true"/>
   </feature>
-
   <platform name="ios">
     <config-file platform="ios" target="*-Info.plist" parent="NSAppTransportSecurity">
       <dict>
@@ -26,5 +25,4 @@
       </dict>
     </config-file>
   </platform>
-
 </widget>

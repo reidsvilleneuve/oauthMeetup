@@ -12,8 +12,10 @@
     <link href="css/ionic.app.css" rel="stylesheet">
     -->
 
-    <!-- ionic/angularjs js -->
+    <!-- ionic/angularjs/bower js -->
     <script src="lib/ionic/js/ionic.bundle.js"></script>
+    <script src="lib/ngCordova/dist/ng-cordova.js"></script>
+    <script src="lib/ng-cordova-oauth/dist/ng-cordova-oauth.js"></script>
 
     <!-- cordova script (this will be a 404 during development) -->
     <script src="cordova.js"></script>
@@ -22,14 +24,13 @@
     <script src="js/app.js"></script>
     <script src="js/controllers.js"></script>
   </head>
-  <body ng-app="starter">
+  <body ng-app="starter">tr
 
     <ion-pane>
       <ion-header-bar class="bar-stable">
-        <h1 class="title">oAuth Example</h1>
+        <h1 class="title">oAuth Example 2</h1>
       </ion-header-bar>
-      <ion-content>
-      </ion-content>
+      <ion-nav-view class="has-header"></ion-nav-view>
     </ion-pane>
   </body>
 </html>
